@@ -1,53 +1,53 @@
-import { useState } from "react";
-import { View, ScrollView } from "react-native";
+import { useState, useEffect } from "react";
+import { View, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { Headline, List } from "react-native-paper";
 import { TodoItem } from "../components";
+import { localStorage } from "../storage";
 
 export const TodoListView = () => {
-  const [todos, setTodos] = useState([
-    {
-      id: "1",
-      text: "Buy milk",
-      isDone: false,
-      createdAt: "2020-01-01T00:00:00.000Z",
-      updatedAt: "2020-01-01T00:00:00.000Z",
-    },
-    {
-      id: "2",
-      text: "Finish the todo app which i am trying to build forever",
-      isDone: false,
-      createdAt: "2020-01-01T00:00:00.000Z",
-      updatedAt: "2020-01-01T00:00:00.000Z",
-    },
-    {
-      id: "3",
-      text: "Find out how come it was earth suitable for life and if there is anything else out there",
-      isDone: false,
-      createdAt: "2020-01-01T00:00:00.000Z",
-      updatedAt: "2020-01-01T00:00:00.000Z",
-    },
-  ]);
+  const alltasks = async () => {
+    const data = await localStorage.get("todos");
+    return data;
+  };
+
+  const [todos, setTodos] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    alltasks().then((data) => {
+      setTodos(data);
+      setIsLoading(false);
+    });
+  }, [todos]);
 
   return (
-    <View style={{ paddingHorizontal: 15, backgroundColor: "white", flex: 1 }}>
-      <Headline
-        style={{
-          fontWeight: "bold",
-          fontSize: 36,
-          marginVertical: 20,
-          padding: 10,
-        }}
-      >
-        Tasks ✍️
-      </Headline>
+    <View style={styles.viewContainer}>
+      <Headline style={styles.headline}>Tasks ✍️</Headline>
       {/*List of to dos  */}
       <ScrollView>
-        <List.Section>
-          {todos.map((todo) => (
-            <TodoItem key={todo.id} text={todo.text} isDone={todo.isDone} />
-          ))}
-        </List.Section>
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <List.Section>
+            {todos &&
+              todos.length > 0 &&
+              todos?.map((todo) => (
+                <TodoItem key={todo.id} text={todo.text} isDone={todo.isDone} />
+              ))}
+          </List.Section>
+        )}
       </ScrollView>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  viewContainer: { paddingHorizontal: 15, backgroundColor: "white", flex: 1 },
+  headline: {
+    fontWeight: "bold",
+    fontSize: 36,
+    marginVertical: 20,
+    padding: 10,
+  },
+});

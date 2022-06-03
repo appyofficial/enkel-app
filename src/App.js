@@ -21,8 +21,8 @@ const checkLocalStorage = async () => {
   if (todos && stats) {
     return;
   }
-
-  console.log(todos, stats);
+  localStorage.set("todos", []);
+  localStorage.set("stats", {});
 };
 
 const App = () => {
