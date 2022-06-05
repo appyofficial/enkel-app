@@ -1,28 +1,34 @@
 import React, { useRef, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 import { FAB, Headline, TextInput, Button } from "react-native-paper";
-import { localStorage } from "../storage";
 import RBSheet from "react-native-raw-bottom-sheet";
 import uuid from "react-native-uuid";
+import realm from "realm";
 
 export const AddTodoButton = () => {
   const refRBSheet = useRef();
   const [task, setTask] = useState("");
 
   const onSave = () => {
-    const alltasks = localStorage.get("todos");
-    const newTask = [
-      {
-        id: uuid.v4(),
-        text: task,
-        isDone: false,
-        createdAt: new Date().toISOString(),
-        completedAt: null,
-      },
-    ];
-    const updatedTask = newTask.concat(alltasks);
-    localStorage.set("todos", [...updatedTask]);
-    console.log("local", alltasks);
+    realm.write(() => {
+      realm.create(
+        "Todos",
+        {
+          id: uuid.v4(),
+          title: task,
+          completed: false,
+          createdAt: Date.now(),
+          completedAt: null,
+          updatedAt: null,
+          reminder: null,
+          notes: null,
+          isImportant: false,
+        },
+        UpdateMode.Modified
+      );
+    });
+    const allTodos = realm.objects("Todos");
+    console.log(allTodos);
     refRBSheet.current.close();
     setTask("");
   };

@@ -11,21 +11,8 @@ import { TodoListView, StatsView } from "./views";
 import { theme } from "./theme";
 import { localStorage } from "./storage";
 
-const TodoListRoute = () => <TodoListView />;
-const StatsRoute = () => <StatsView />;
-
-const checkLocalStorage = async () => {
-  await localStorage.init();
-  const todos = localStorage.get("todos");
-  const stats = localStorage.get("stats");
-  if (todos && stats) {
-    return;
-  }
-  localStorage.set("todos", []);
-  localStorage.set("stats", {});
-};
-
 const App = () => {
+  localStorage.init();
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: "todo", title: "Todo", icon: "note-edit" },
@@ -33,13 +20,9 @@ const App = () => {
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
-    todo: TodoListRoute,
-    stats: StatsRoute,
+    todo: () => <TodoListView />,
+    stats: () => <StatsView />,
   });
-
-  useEffect(() => {
-    checkLocalStorage();
-  }, []);
 
   return (
     <PaperProvider theme={theme}>
